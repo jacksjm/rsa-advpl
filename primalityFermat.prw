@@ -1,17 +1,39 @@
-Main Function primalityFermat()
+#include "Protheus.ch"
+//-------------------------------------------------------------------
+/*/{Protheus.doc} primalityFermat
+Determina se um determinado número (nNumTest) é primo
+Utiliza-se do Método de Fermat, determinando um probabilidade
+de que o número é primo, através do quantitativo de descartes de
+que o mesmo não é composto. Quanto maior o número de tentativas (nNumTrial),
+maior a chance do número ser verdadeiramente primo.
+
+@author  Jackson Machado
+@since   16/09/2018
+@version 1.0
+/*/
+//-------------------------------------------------------------------
+User Function primalityFermat( nParamTest )
 
 	Local lPrime := .T.
 	Local nTrial
 	// Numero de Tentativas
 	Local nNumTrial := 20
+
 	// Numero a ser testado
-	Local nNumTest := 44721359
+	Local nNumTest
+
 	// Numero randomizado de 1 até nNumTest - 1
 	Local nNumRand
 
+	// Determina um valor Padrão como Primo a nível de teste
+	Default nParamTest := 44721359
+
+	//Atribui o valor para teste
+	nNumTest := nParamTest
+
 	For nTrial := 1 To nNumTrial
 		// Gera um número aleatório de  1 até nNumTest - 1
-		nNumRand := 19724148//Randomize( 1, nNumTest )
+		nNumRand := Randomize( 1, nNumTest )
 
 		// Avalia se o numero possui outro máximo denominador comum
 		// que não 1, caso tenha não é primo
@@ -31,12 +53,19 @@ Main Function primalityFermat()
 //-------------------------------------------------------------------
 /*/{Protheus.doc} testMod
 Determina o resultado do módulo de acordo com o Fator e a Potência
+Aplica-se o Teorema do Quociente-Resto:
+	- Onde, A = B * Q + R, sendo 0 <= R < B
+e a Multiplicação Modular:
+	- Onde, (A * B) mod C = (A mod C * B mod C) mod C
+Com isso, elimina-se os múltiplos de C e considera-se os Restos para
+as demais múltiplicações
+
 @author  Jackson Machado
 @since   16/09/2018
 @version 1.0
 /*/
 //-------------------------------------------------------------------
-Function testMod( nFactor, nPow, nNumMod )
+Static Function testMod( nFactor, nPow, nNumMod )
 	Local nMod := 1
 
 	//Realiza a operação até potência ser encerrada
@@ -65,7 +94,7 @@ Retorna o Maximo Divisor Comum
 @version 1.0
 /*/
 //-------------------------------------------------------------------
-Function MDC( nRandom, nTestNum )
+Static Function MDC( nRandom, nTestNum )
 
 	Local nTmpMod
 	Local nMDC    := nRandom
