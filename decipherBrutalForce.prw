@@ -1,6 +1,8 @@
 User Function brutDeci()
 
 	Local nMsg
+	Local nCnt
+	Local nSqrt
 	Local nValueN // Valor para a chave pública N
 	Local nValueE // Valor para a chave pública E
 	Local nValueD      := 0 // Valor para a chave privada D
@@ -61,9 +63,13 @@ User Function brutDeci()
 	conout( "===== Cipher: " + cLogMsg + " =====")
 
 	// ----------- Simula a não existência do valor de Phi(N)  -----------
-	// Fatorar valor de nValueN com Euclides Estendido
-	// TODO
-
+	// Fatorar valor de nValueN com Teste de Primalidade Até a Raiz de N
+	nSqrt := Sqrt( nValueN )
+	For nCnt := 3 To nSqrt Step 2
+		If u_PriFerm( nCnt )
+			//If nCnt ==
+		EndIf
+	Next nCnt
 	conout( "===== Decriptografando Mensagem =====")
 	//Decipher da Mensagem
 	For nMsg := 1 To Len( aLetMsg )

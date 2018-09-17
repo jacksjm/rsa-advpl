@@ -15,47 +15,45 @@ User Function cipherMsg()
 	Local aLetMsg      := {}
 
 	// Determina os valores de limite inicial e final da geração dos números aleatórios
-	Local nLimLeft    := 1
-	Local nLimRight   := aValues[ 4 ] //Valor de ?(N)
+	Local nValuePhi   := aValues[ 4 ] //Valor de ?(N)
 
 	// Determina valor de N
 	nValueN := aValues[ 3 ]
 
 	// Calcula o valor de E para que o valor não seja menor que 1 e maior que o valor de ?(N)
 	conout( "===== Determinando valor de E =====")
-	nValueE := Randomize( nLimLeft , nLimRight + 1 ) // Sortei um número entre o limite
-	While !lLoc
-		While !u_PriFerm( nValueE )// Determina a primalidade do número
-			// Caso valor ultrapasse o limite da sequencia, volta ao início da sequencia
-			If nValueE < nLimRight
-				// Caso seja divisor de 2 sabe-se que é par, logo busca
-				// o próximo número ímpar em sequencia
-				If nValueE % 2 == 0
-					nValueE++
+	While nValueD <= 0 //Caso encontre um D negativo, busca novamente para não exponenciar em negativo
+		nValueE := Randomize( 1 , nValuePhi + 1 ) // Sortei um número entre o limite
+		While !lLoc
+			While !u_PriFerm( nValueE )// Determina a primalidade do número
+				// Caso valor ultrapasse o limite da sequencia, volta ao início da sequencia
+				If nValueE < nValuePhi
+					// Caso seja divisor de 2 sabe-se que é par, logo busca
+					// o próximo número ímpar em sequencia
+					If nValueE % 2 == 0
+						nValueE++
+					Else
+						nValueE += 2
+					EndIf
 				Else
-					nValueE += 2
+					nValueE := 1
 				EndIf
+			EndDo
+			// Determina se ?(N) e o número possem o máximo denominador comum de 1
+			If u_MDC( nValuePhi , nValueE ) == 1
+				lLoc := .T.
 			Else
-				nValueE := nLimLeft
+				// Caso o Máximo denominador comum não seja 1, pula para o próximo número
+				nValueE++
 			EndIf
 		EndDo
-		// Determina se ?(N) e o número possem o máximo denominador comum de 1
-		If u_MDC( nLimRight , nValueE ) == 1
-			lLoc := .T.
-		Else
-			// Caso o Máximo denominador comum não seja 1, pula para o próximo número
-			nValueE++
-		EndIf
+		//Busca a chave privada
+		nValueD := u_MDCExt( nValueE, nValuePhi )
 	EndDo
 	conout( "===== Valor de E: " + cValToChar( nValueE ) + " =====")
 
 	conout( "===== Determinando valor de D =====")
-	//Busca a chave privada
-	While ( ( nValueD * nValueE ) % nLimRight ) != 1
-		nValueD++
-	EndDo
 	conout( "===== Valor de D: " + cValToChar( nValueD ) + " =====")
-
 	conout( "===== Criptografando Mensagem =====")
 	// Cipher da Mensagem
 	For nMsg := 1 To Len( cMsgToCipher )

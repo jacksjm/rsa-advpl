@@ -25,7 +25,7 @@ User Function totiente( lPrivate )
 	Local nTamNumbers := 2
 	//Determina os valores de limite inicial e final da geração dos números aleatórios
 	Local nLimLeft    := Val( PadR( "1" , nTamNumbers , "0" ) )
-	Local nLimRight   := Val( Replicate( "2" , nTamNumbers ) )
+	Local nLimRight   := Val( Replicate( "9" , nTamNumbers ) )
 
 	Local nP
 	Local nQ
@@ -68,7 +68,7 @@ User Function totiente( lPrivate )
 
 	If !lPrivate
 		//Adiciona os valores no array de retorno
-		aAdd( aValues, nP * nQ )
+		aAdd( aValues, aValues[ 1 ] * aValues[ 2 ] )
 		aAdd( aValues, nPhiP * nPhiQ )
 	Else
 		//Caso seja a estrutura privada, retorna apenas N

@@ -22,7 +22,7 @@ User Function testMod( nFactor, nPow, nNumMod )
 		// multiplica o resto salvo pelo fator e
 		// salva o resto da divisão
 		If nPow % 2 == 1
-			nMod := Round( ( nMod * nFactor ) % nNumMod, 0 )
+			nMod := u_MOD( ( nMod * nFactor ), nNumMod )
 			nPow := nPow--
 		EndIf
 		// Divide o expoente por 2 e salva o valor
@@ -30,7 +30,7 @@ User Function testMod( nFactor, nPow, nNumMod )
 		// Multiplica o fator em 2 e
 		// salva como novo fator o resto da divisão
 		// para utilizar no novo módulo
-		nFactor := Round( ( nFactor * nFactor ) % nNumMod, 0 )
+		nFactor := u_MOD( ( nFactor * nFactor ) , nNumMod )
 	EndDo
 
 	// Caso seja negativo, corrige para o valor positivo
@@ -85,7 +85,7 @@ User Function MDC( nRandom, nTestNum )
 	// Para tanto, realiza as divisões pelos restos
 	While nTestNum != 0
 		//Salva o resto da divisão do número randomico pelo numero testado
-		nTmpMod  := nMDC % nTestNum
+		nTmpMod  := u_MOD( nMDC, nTestNum )
 		// Salva como máximo divisor comum o número testado
 		// e como novo divisor o resto da divisão atual
 		nMDC     := nTestNum
@@ -93,3 +93,85 @@ User Function MDC( nRandom, nTestNum )
 	EndDo
 
 	Return nMDC
+//-------------------------------------------------------------------
+/*/{Protheus.doc} MDCExt
+Retorna o valor de X no Algoritmo de Euclides Estendido
+Onde A x X + B x Y = MDC(A,B), sendo :
+	- A o valor da chave pública E
+	- B o valor de Phi(N)
+
+@author  Jackson Machado
+@since   17/09/2018
+@version 1.0
+/*/
+//-------------------------------------------------------------------
+User Function MDCExt( nX, nY )
+
+	// Estrutura de Variáveis
+	// nValueX * nX + nValueY * nY = nX
+	// nRest1 * nValueX + nRest2 * nY = nY
+	Local nValueX   := 1
+	Local nValueY   := 0
+	Local nRest1    := 0
+	Local nRest2    := 1
+	Local nNewRest1 := 0
+	Local nNewRest2 := 0
+	Local nTmpRes
+
+
+	/* Estrutura de Exemplo
+	(1) 13/640 = 0 com resto 13
+	(2) 640/13 = 49 com resto 3
+	(3) 13/3 = 4 com resto 1
+
+	------------------
+	X / Y = C com R
+	X = C * Y + R
+	Isola-se o R
+	R = X - ( C * Y ) ou R = ( 1 * X ) - ( C * Y )
+	(1) 13 = ( 1 * 13 ) - ( 0 * 640 )
+	(2) 3 = ( 1 * 640 ) - ( 49 * 13 )
+	(2) 3 = ( 1 * 640 ) - ( 49 * ( ( 1 * 13 ) - ( 0 * 640 ) ) )
+	(2) 3 = ( 1 * 640 ) - ( 49 * 13 ) - ( 0 * 640 )
+	(2) 3 = ( 1 * 640 ) - ( 49 * 13 )
+	(3) 1 = ( 1 * 13 ) - ( 4 * 3 )
+	(3) 1 = ( 1 * 13 ) - ( 4 * ( 1 * 640 ) - ( 49 * 13 ) )
+	(3) 1 = ( 1 * 13 ) - ( 4 * 640 ) - ( 196 * 13 )
+	(3) 1 = ( 197 * 13 ) - ( 4 * 640 )
+	*/
+	While nY != 0
+		nTmpRes := u_MOD( nX, nY ) // 13 // 3 // 1 // 0
+		nQuot   := Int(nX/nY) // 0 // 49 // 4 // 3
+		nX := nY // 640 // 13 // 3 // 1
+		nY := nTmpRes // 13 // 3 // 1 // 0
+		nNewRest1 := nValueX - nQuot * nRest1 // 1 // -49 // 197 // -640
+		nNewRest2 := nValueY - nQuot * nRest2 // 0 // 1 // -4 // 13
+		nValueX := nRest1 // 0 // 1 // -49 // 197
+		nValueY := nRest2 // 1 // 0 // 1 // -4
+		nRest1  := nNewRest1 // 1 //-49 // 197 // -640
+		nRest2  := nNewRest2 // 0 // 1 // -4 // 13
+	EndDo
+
+	Return nValueX
+
+//-------------------------------------------------------------------
+/*/{Protheus.doc} MOD
+Retorna o Mod da divisão
+Necessário pois o Protheus não trata corretamente Mod negativo
+
+@author  Jackson Machado
+@since   17/09/2018
+@version 1.0
+/*/
+//-------------------------------------------------------------------
+User Function MOD( nA, nB )
+	Local nRest := Round( nA % nB , 0 )
+
+	// Se o resto for negativo e o dividendo for positivo, ou se o resto
+	// for positivo e o dividendo negativo, é necessário ajustar
+	If ( nRest < 0 .And. nB > 0 ) .Or. ;
+		( nRest > 0 .And. nB < 0 )
+		nRest := nB + nRest
+	EndIf
+
+	Return nRest
