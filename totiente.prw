@@ -1,3 +1,4 @@
+#include "Protheus.ch"
 //-------------------------------------------------------------------
 /*/{Protheus.doc} totiente
 Determina a Função Totiente de Euler
@@ -17,14 +18,14 @@ Com isso, tem-se que ?(N) ou Phi(N) = (P - 1) * (Q - 1).
 @version 1.0
 /*/
 //-------------------------------------------------------------------
-User Function totiente()
+User Function totiente( lPrivate )
 
 	Local nCnt
 	//Determina o tamanho mínimo dos números
 	Local nTamNumbers := 2
 	//Determina os valores de limite inicial e final da geração dos números aleatórios
 	Local nLimLeft    := Val( PadR( "1" , nTamNumbers , "0" ) )
-	Local nLimRight   := Val( Replicate( "9" , nTamNumbers ) )
+	Local nLimRight   := Val( Replicate( "2" , nTamNumbers ) )
 
 	Local nP
 	Local nQ
@@ -32,6 +33,9 @@ User Function totiente()
 	Local nPhiQ
 
 	Local aValues := {}
+
+	//Define que retorna a estrutura completa
+	Default lPrivate := .F.
 
 	//Executa o Random para buscar os números entre o limite
 	nP := Randomize( nLimLeft , nLimRight + 1 ) //Sortei um número entre o limite
@@ -62,8 +66,13 @@ User Function totiente()
 	nPhiP := aValues[ 1 ] - 1
 	nPhiQ := aValues[ 2 ] - 1
 
-	//Adiciona os valores no array de retorno
-	aAdd( aValues, nP * nQ )
-	aAdd( aValues, nPhiP * nPhiQ )
+	If !lPrivate
+		//Adiciona os valores no array de retorno
+		aAdd( aValues, nP * nQ )
+		aAdd( aValues, nPhiP * nPhiQ )
+	Else
+		//Caso seja a estrutura privada, retorna apenas N
+		aAdd( aValues, nP * nQ )
+	EndIf
 
 	Return aValues
