@@ -23,33 +23,57 @@ User Function brutDeci()
 	// Determina valor de N
 	nValueN := aValues[ 3 ]
 
-	// Calcula o valor de E para que o valor não seja menor que 1 e maior que o valor de ?(N)
+	// ----------- Simula a não existência do valor de Phi(N)  -----------
+	// Fatorar valor de nValueN com Teste de Primalidade Até a Raiz de N
+	nSqrt := Sqrt( nValueN )
+	For nCnt := 3 To nSqrt Step 2
+		If u_PriFerm( nCnt )
+			If nValueN % nCnt == 0
+				nP := ( nValueN / nCnt )
+				nQ := nCnt
+				Exit
+			EndIf
+		EndIf
+	Next nCnt
+	//Salva os valores para calcular o Phi(N)
+	nPhiP := nP - 1
+	nPhiQ := nQ - 1
+	nValuePhi := nPhiP * nPhiQ
+
+	// Calcula o valor de E para que o valor não seja menor que 1 e maior que o valor de Phi(N)
 	conout( "===== Determinando valor de E =====")
-	nValueE := Randomize( nLimLeft , nLimRight + 1 ) // Sortei um número entre o limite
-	While !lLoc
-		While !u_PriFerm( nValueE )// Determina a primalidade do número
-			// Caso valor ultrapasse o limite da sequencia, volta ao início da sequencia
-			If nValueE < nLimRight
-				// Caso seja divisor de 2 sabe-se que é par, logo busca
-				// o próximo número ímpar em sequencia
-				If nValueE % 2 == 0
-					nValueE++
+	While nValueD <= 0 //Caso encontre um D negativo, busca novamente para não exponenciar em negativo
+		nValueE := Randomize( 1 , nValuePhi + 1 ) // Sortei um número entre o limite
+		While !lLoc
+			While !u_PriFerm( nValueE )// Determina a primalidade do número
+				// Caso valor ultrapasse o limite da sequencia, volta ao início da sequencia
+				If nValueE < nValuePhi
+					// Caso seja divisor de 2 sabe-se que é par, logo busca
+					// o próximo número ímpar em sequencia
+					If nValueE % 2 == 0
+						nValueE++
+					Else
+						nValueE += 2
+					EndIf
 				Else
-					nValueE += 2
+					nValueE := 1
 				EndIf
+			EndDo
+			// Determina se ?(N) e o número possem o máximo denominador comum de 1
+			If u_MDC( nValuePhi , nValueE ) == 1
+				lLoc := .T.
 			Else
-				nValueE := nLimLeft
+				// Caso o Máximo denominador comum não seja 1, pula para o próximo número
+				nValueE++
 			EndIf
 		EndDo
-		// Determina se ?(N) e o número possem o máximo denominador comum de 1
-		If u_MDC( nLimRight , nValueE ) == 1
-			lLoc := .T.
-		Else
-			// Caso o Máximo denominador comum não seja 1, pula para o próximo número
-			nValueE++
-		EndIf
+		//Busca a chave privada
+		nValueD := u_MDCExt( nValueE, nValuePhi )
 	EndDo
 	conout( "===== Valor de E: " + cValToChar( nValueE ) + " =====")
+
+	conout( "===== Determinando valor de D =====")
+	conout( "===== Valor de D: " + cValToChar( nValueD ) + " =====")
 	conout( "===== Criptografando Mensagem =====")
 	// Cipher da Mensagem
 	For nMsg := 1 To Len( cMsgToCipher )
@@ -61,15 +85,6 @@ User Function brutDeci()
 		cLogMsg += If( !Empty( cLogMsg ) , "," , "" ) + aLetMsg[ nMsg ]
 	Next nMsg
 	conout( "===== Cipher: " + cLogMsg + " =====")
-
-	// ----------- Simula a não existência do valor de Phi(N)  -----------
-	// Fatorar valor de nValueN com Teste de Primalidade Até a Raiz de N
-	nSqrt := Sqrt( nValueN )
-	For nCnt := 3 To nSqrt Step 2
-		If u_PriFerm( nCnt )
-			//If nCnt ==
-		EndIf
-	Next nCnt
 	conout( "===== Decriptografando Mensagem =====")
 	//Decipher da Mensagem
 	For nMsg := 1 To Len( aLetMsg )
