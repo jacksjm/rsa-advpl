@@ -1,4 +1,4 @@
-User Function brutDeci()
+User Function polRhoDeci()
 
 	Local nMsg
 	Local nCnt
@@ -24,17 +24,7 @@ User Function brutDeci()
 	nValueN := aValues[ 3 ]
 
 	// ----------- Simula a não existência do valor de Phi(N)  -----------
-	// Fatorar valor de nValueN com Teste de Primalidade Até a Raiz de N
-	nSqrt := Sqrt( nValueN )
-	For nCnt := 3 To nSqrt Step 2
-		If u_PriFerm( nCnt )
-			If nValueN % nCnt == 0
-				nP := ( nValueN / nCnt )
-				nQ := nCnt
-				Exit
-			EndIf
-		EndIf
-	Next nCnt
+	nValueD := fPollardRho( nValueN )
 	//Salva os valores para calcular o Phi(N)
 	nPhiP := nP - 1
 	nPhiQ := nQ - 1
@@ -94,3 +84,33 @@ User Function brutDeci()
 	Next nMsg
 	conout( "===== Decipher: " + cMsgTpDeciph + " =====")
 	Return
+
+Function fPollardRho( nValueN )
+
+	Local nValueC
+	Local nValueD
+	Local nValueX
+	Local nValueY
+
+	If nValueN == 1
+		nValueD := 1
+	ElseIf nValueN % 2 == 0
+		nValueD := 2
+	Else
+		nValueX := 2 + Randomize( 1, nValueN - 1 )
+		nValueY := nValueX
+		nValueC := 1 + Randomize( 1, nValueN )
+		nValueD := 1
+		While nValueD == 1
+			nValueX := ( ( nValueX ** 2 ) + nValueC + nValueN ) % nValueN
+			nValueY := ( ( nValueY ** 2 ) + nValueC + nValueN ) % nValueN
+			nValueY := ( ( nValueY ** 2 ) + nValueC + nValueN ) % nValueN
+
+			nValueD := u_MDC( ABS( nValueX - nValueY ) , nValueN )
+			If nValueN == nValueD
+				Return fPollardRho( nValueN )
+			EndIf
+		End
+	EndIf
+
+	Return nValueD
